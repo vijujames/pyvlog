@@ -21,7 +21,7 @@ class VLogParser(object):
         If empty list all types are logged.
     """
 
-    def __init__(self, logged_types=['detectie', 'externeSignaalgroep'], **kwargs):
+    def __init__(self, logged_types=['loopDetectors', 'extSignalState'], **kwargs):
 
         if len(logged_types) == 0:
             logged_types = list(MESSAGE_TYPE_DICT.keys())
@@ -36,7 +36,7 @@ class VLogParser(object):
 
         # Set initial (empty) status
         self.status = {'timestamp': None,
-                       'tijdReferentie': None}
+                       'timeReference': None}
         for key in logged_types:
             self.status[key] = {}
 
@@ -59,7 +59,7 @@ class VLogParser(object):
 
         assert int(message[:2], 16) % 2 == 1, "Not status message"
 
-        self.status['deltaTijd'] = int(message[2:5], 16)/10 # Log in seconds
+        self.status['deltaTime'] = int(message[2:5], 16)/10 # Log in seconds
         self._update_time()
         num_sensors = int(hex_string_to_bits(message[5:8])[2:], 2)
 
@@ -86,7 +86,7 @@ class VLogParser(object):
 
         assert int(message[:2], 16) % 2 == 0, "Not update message"
 
-        self.status['deltaTijd'] = int(message[2:5], 16)/10 # Log in seconds
+        self.status['deltaTime'] = int(message[2:5], 16)/10 # Log in seconds
         self._update_time()
         num_sensors = int(message[5], 16)
 
@@ -114,7 +114,7 @@ class VLogParser(object):
         if message_type == 1:
             # Time reference
             # Sometimes the time is given as 24:00 not 00:00 so add the time to the date to deal with this
-            self.status['tijdReferentie'] = (
+            self.status['timeReference'] = (
                     datetime(
                         int(message[2:6]),
                         int(message[6:8]),
@@ -127,7 +127,7 @@ class VLogParser(object):
                         milliseconds=int(message[16]) * 100
                     )
             ).timestamp()
-            self.status['deltaTijd'] = 0
+            self.status['deltaTime'] = 0
 
         elif message_type == 4:
             # V-Log information
@@ -145,15 +145,15 @@ class VLogParser(object):
             # Detection status
             num_sensors = self._parse_status(message, data_size=1)
             for i in range(0, num_sensors):
-                self.status['detectie'][i] = parse_detection_data(message[8 + i])
+                self.status['loopDetectors'][i] = parse_detection_data(message[8 + i])
 
         elif message_type == 6:
             # Detection update
             num_sensors = self._parse_update(message, data_size=4)
             for i in range(0, num_sensors):
                 index = int(message[6 + i * 4:8 + i * 4], 16)
-                if index in self.status['detectie'].keys():
-                    self.status['detectie'][index] = parse_detection_data(message[9 + i * 4])
+                if index in self.status['loopDetectors'].keys():
+                    self.status['loopDetectors'][index] = parse_detection_data(message[9 + i * 4])
 
         elif message_type == 7:
             # Other input status
@@ -205,15 +205,15 @@ class VLogParser(object):
             # External phase status
             num_sensors = self._parse_status(message, data_size=1)
             for i in range(0, num_sensors):
-                self.status['externeSignaalgroep'][i] = int(message[8 + i], 16)
+                self.status['extSignalState'][i] = int(message[8 + i], 16)
 
         elif message_type == 14:
             # External phase update
             num_sensors = self._parse_update(message, data_size=4)
             for i in range(0, num_sensors):
                 index = int(message[6 + i * 4:8 + i * 4], 16)
-                if index in self.status['externeSignaalgroep'].keys():
-                    self.status['externeSignaalgroep'][index] = int(message[8 + i * 4:10 + i * 4], 16)
+                if index in self.status['extSignalState'].keys():
+                    self.status['extSignalState'][index] = int(message[8 + i * 4:10 + i * 4], 16)
 
         elif message_type == 15:
             # Other output status (WUS)
@@ -297,13 +297,13 @@ class VLogParser(object):
         Update the timestamp and if it has changed log the previous status.
         """
         # Only log once we have seen a reference time
-        if self.status['tijdReferentie'] and (self.status['timestamp']
-                                              != (self.status['tijdReferentie'] + self.status['deltaTijd'])):
+        if self.status['timeReference'] and (self.status['timestamp']
+                                              != (self.status['timeReference'] + self.status['deltaTime'])):
 
             # Log status and update time
             if self.status['timestamp']:
                 self.log_status(self.status, **self._log_kwargs)
-            self.status['timestamp'] = self.status['tijdReferentie'] + self.status['deltaTijd']
+            self.status['timestamp'] = self.status['timeReference'] + self.status['deltaTime']
 
             # Wipe statuses which only exist at the timestamp of their production
             for key in WIPED_MESSAGES:
@@ -337,7 +337,7 @@ class VLogParserToList(VLogParser):
         If empty list all types are logged.
     """
 
-    def __init__(self, status_list, logged_types=['detectie', 'externeSignaalgroep']):
+    def __init__(self, status_list, logged_types=['loopDetectors', 'extSignalState']):
 
         super().__init__(logged_types, status_list=status_list)
 
@@ -371,7 +371,7 @@ class VLogParserToJson(VLogParser):
         If empty list all types are logged.
     """
 
-    def __init__(self, path_to_json, logged_types=['detectie', 'externeSignaalgroep']):
+    def __init__(self, path_to_json, logged_types=['loopDetectors', 'extSignalState']):
 
         super().__init__(logged_types, path_to_json=path_to_json)
 

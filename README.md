@@ -16,12 +16,12 @@ It converts individual device messages like this:
 into intersection statuses like this:
 ```
 {'timestamp': 1536670800.6,
- 'tijdReferentie': 1536670800.0,
- 'detectie': {0: {'OG-BG-FL': 0, 'storing': 0, 'bezet': 0},
+ 'timeReference': 1536670800.0,
+ 'loopDetectors': {0: {'OG-BG-FL': 0, 'storing': 0, 'bezet': 0},
   1: {'OG-BG-FL': 0, 'storing': 0, 'bezet': 0},
   2: {'OG-BG-FL': 0, 'storing': 0, 'bezet': 1}},
- 'externeSignaalgroep': {0: 0, 1: 2},
- 'deltaTijd': 0.6}
+ 'extSignalState': {0: 0, 1: 2},
+ 'deltaTime': 0.6}
 ```
 
 Naming and data conventions for the various traffic devices follow the specification provided by [Vialis](https://www.ivera.nl/wp-content/uploads/2018/04/V-Log_protocol_en_definities_v3.01_WG_techniek_changes_highlighted.pdf).
@@ -115,13 +115,13 @@ Custom parser classes can be created for any number of different logging routine
 This package is developed for the processing of realtime v-log messages from a small number of smart intersections. As such not all types of v-log messages were available during its development. The message types currently parsed are given by the keys of `messagetypes.MESSAGE_TYPE_DICT` and are repeated below (with the v-log message prefix given in brackets).
 
 #### Message types parsed:
-- _tijdReferentie_ (1)
+- _timeReference_ (1)
 - _vlogInformatie_ (4)
-- _detectie_ (5,6)
+- _loopDetectors_ (5,6)
 - _overigeIngangen_ (7,8)
 - _interneFaseCyclus_ (9,10)
 - _overigeUitgangenGUS_ (11,12)
-- _externeSignaalgroep_ (13,14)
+- _extSignalState_ (13,14)
 - _overigeUitgangenWUS_ (15,16)
 - _gewensteProgrammaStatus_ (17,18)
 - _werkelijkeProgrammaStatus_ (19,20)
@@ -129,12 +129,12 @@ This package is developed for the processing of realtime v-log messages from a s
 - _instructieVariabelen_ (32)
 - _OVHulpdienstInformatie_ (34)
 
-By default only _detectie_ and _externeSignaalgroep_ are parsed (plus _tijdReferentie_, which is always parsed in order to calculate the timestamp). Both the parser classes and converter functions take an argument `logged_types`, which specifies which message types to log.
+By default only _loopDetectors_ and _extSignalState_ are parsed (plus _timeReference_, which is always parsed in order to calculate the timestamp). Both the parser classes and converter functions take an argument `logged_types`, which specifies which message types to log.
 
 ```python
 from pyvlog.parsers import VLogParser
 
-vlogger = VLogParser(logged_types=["detectie", "externeSignaalgroep", "interneFaseCyclus"])
+vlogger = VLogParser(logged_types=["loopDetectors", "extSignalState", "interneFaseCyclus"])
 
 messages = ['012018091115000000', '05000003000', '0D00000200', '090000020070A0', '0E00310102', '0600610201']
 for m in messages:

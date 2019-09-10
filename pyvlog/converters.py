@@ -8,7 +8,7 @@ from .utils import flatten
 import pandas as pd
 
 
-def list_to_list(messages, logged_types=['detectie', 'externeSignaalgroep']):
+def list_to_list(messages, logged_types=['loopDetectors', 'extSignalState']):
     """
     Convert a list of v-log messages to a list of statuses.
 
@@ -35,7 +35,7 @@ def list_to_list(messages, logged_types=['detectie', 'externeSignaalgroep']):
     return status_list
 
 
-def list_to_json(messages, path_to_json, logged_types=['detectie', 'externeSignaalgroep']):
+def list_to_json(messages, path_to_json, logged_types=['loopDetectors', 'extSignalState']):
     """
     Convert a list of v-log messages to a json file of statuses.
 
@@ -56,7 +56,7 @@ def list_to_json(messages, path_to_json, logged_types=['detectie', 'externeSigna
         vlogger.parse_message(m.strip())  # Remove any whitespace from the messages
 
 
-def list_to_dataframe(messages, logged_types=['detectie', 'externeSignaalgroep']):
+def list_to_dataframe(messages, logged_types=['loopDetectors', 'extSignalState']):
     """
     Convert a list of v-log messages to a dataframe of statuses.
 
@@ -86,13 +86,13 @@ def list_to_dataframe(messages, logged_types=['detectie', 'externeSignaalgroep']
 
     # Convert datetimes
     df["timestamp"] = pd.to_datetime(df["timestamp"] * 1000000000)
-    df["tijdReferentie"] = pd.to_datetime(df["tijdReferentie"] * 1000000000)
-    df["deltaTijd"] = pd.to_timedelta(df["deltaTijd"] * 1000000000)
+    df["timeReference"] = pd.to_datetime(df["timeReference"] * 1000000000)
+    df["deltaTime"] = pd.to_timedelta(df["deltaTime"] * 1000000000)
 
     return df
 
 
-def file_to_list(path_to_vlg, logged_types=['detectie', 'externeSignaalgroep']):
+def file_to_list(path_to_vlg, logged_types=['loopDetectors', 'extSignalState']):
     """
     Convert a file of v-log messages (each on a new line) to a list of statuses.
 
@@ -124,7 +124,7 @@ def file_to_list(path_to_vlg, logged_types=['detectie', 'externeSignaalgroep']):
     return status_list
 
 
-def file_to_json(path_to_vlg, path_to_json, logged_types=['detectie', 'externeSignaalgroep']):
+def file_to_json(path_to_vlg, path_to_json, logged_types=['loopDetectors', 'extSignalState']):
     """
     Convert a file of v-log messages (each on a new line) to a json file of statuses.
 
@@ -150,7 +150,7 @@ def file_to_json(path_to_vlg, path_to_json, logged_types=['detectie', 'externeSi
         vlogger.parse_message(m.strip())  # Remove any whitespace from the messages
 
 
-def file_to_dataframe(path_to_vlg, logged_types=['detectie', 'externeSignaalgroep']):
+def file_to_dataframe(path_to_vlg, logged_types=['loopDetectors', 'extSignalState']):
     """
     Convert a file of v-log messages (each on a new line) to a dataframe of statuses.
 
@@ -185,7 +185,7 @@ def file_to_dataframe(path_to_vlg, logged_types=['detectie', 'externeSignaalgroe
 
     # Convert datetimes
     df["timestamp"] = pd.to_datetime(df["timestamp"] * 1000000000)
-    df["tijdReferentie"] = pd.to_datetime(df["tijdReferentie"] * 1000000000)
-    df["deltaTijd"] = pd.to_timedelta(df["deltaTijd"] * 1000000000)
+    df["timeReference"] = pd.to_datetime(df["timeReference"] * 1000000000)
+    df["deltaTime"] = pd.to_timedelta(df["deltaTime"] * 1000000000)
 
     return df
