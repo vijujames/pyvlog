@@ -81,8 +81,8 @@ def parse_detection_data(string):
 
     out_concise = {
         'OG-BG-FL': bits[:2],
-        'storing': bits[2],
-        'bezet': bits[3]
+        'malfunction': bits[2],
+        'busy': bits[3]
     }
 
     for key, value in out_concise.items():

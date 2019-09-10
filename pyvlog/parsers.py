@@ -131,7 +131,7 @@ class VLogParser(object):
 
         elif message_type == 4:
             # V-Log information
-            self.status['vlogInformatie']['V-Log versie'] = "{}.{}.{}".format(int(message[2:4], 16),
+            self.status['vlogInformation']['V-Log versie'] = "{}.{}.{}".format(int(message[2:4], 16),
                                                                               int(message[4:6], 16),
                                                                               int(message[6:8], 16))
             vri_id = ''
@@ -139,7 +139,7 @@ class VLogParser(object):
             while i < len(message):
                 vri_id += chr(int(message[i:i + 2], 16))
                 i += 2
-            self.status['vlogInformatie']['VRI id'] = vri_id.strip()  # Remove whitespace
+            self.status['vlogInformation']['VRI id'] = vri_id.strip()  # Remove whitespace
 
         elif message_type == 5:
             # Detection status
@@ -160,7 +160,7 @@ class VLogParser(object):
             num_sensors = self._parse_status(message, data_size=0.25)
             status_bits = hex_string_to_bits(message[8:])
             for i in range(0, num_sensors):
-                self.status['overigeIngangen'][i] = int(status_bits[i], 2)
+                self.status['otherInputs'][i] = int(status_bits[i], 2)
 
         elif message_type == 8:
             # Other input update
@@ -168,22 +168,22 @@ class VLogParser(object):
             for i in range(0, num_sensors):
                 status_bits = hex_string_to_bits(message[6 + i * 2:8 + i * 2])
                 index = int(status_bits[:-1], 2)
-                if index in self.status['overigeIngangen'].keys():
-                    self.status['overigeIngangen'][index] = int(status_bits[-1], 2)
+                if index in self.status['otherInputs'].keys():
+                    self.status['otherInputs'][index] = int(status_bits[-1], 2)
 
         elif message_type == 9:
             # Internal phase status
             num_sensors = self._parse_status(message, data_size=3)
             for i in range(0, num_sensors):
-                self.status['interneFaseCyclus'][i] = parse_internal_data(message[8 + i * 3:11 + i * 3])
+                self.status['intPhaseCycle'][i] = parse_internal_data(message[8 + i * 3:11 + i * 3])
 
         elif message_type == 10:
             # Internal phase update
             num_sensors = self._parse_update(message, data_size=6)
             for i in range(0, num_sensors):
                 index = int(message[6 + i * 6:8 + i * 6], 16)
-                if index in self.status['interneFaseCyclus'].keys():
-                    self.status['interneFaseCyclus'][index] = parse_internal_data(message[9 + i * 6:12 + i * 6])
+                if index in self.status['intPhaseCycle'].keys():
+                    self.status['intPhaseCycle'][index] = parse_internal_data(message[9 + i * 6:12 + i * 6])
 
         elif message_type == 11:
             # Other output status (GUS)
@@ -220,7 +220,7 @@ class VLogParser(object):
             num_sensors = self._parse_status(message, data_size=0.25)
             status_bits = hex_string_to_bits(message[8:])
             for i in range(0, num_sensors):
-                self.status['overigeUitgangenWUS'][i] = int(status_bits[i], 2)
+                self.status['otherOutputsWUS'][i] = int(status_bits[i], 2)
 
         elif message_type == 16:
             # Other output update (WUS)
@@ -228,36 +228,36 @@ class VLogParser(object):
             for i in range(0, num_sensors):
                 status_bits = hex_string_to_bits(message[6 + i * 2:8 + i * 2])
                 index = int(status_bits[:-1], 2)
-                if index in self.status['overigeUitgangenWUS'].keys():
-                    self.status['overigeUitgangenWUS'][index] = int(status_bits[-1], 2)
+                if index in self.status['otherOutputsWUS'].keys():
+                    self.status['otherOutputsWUS'][index] = int(status_bits[-1], 2)
 
         elif message_type == 17:
             # Desired program status
             num_sensors = self._parse_status(message, data_size=1)
             for i in range(0, num_sensors):
-                self.status['gewensteProgrammaStatus'][i] = int(message[8 + i], 16)
+                self.status['desiredProgramStatus'][i] = int(message[8 + i], 16)
 
         elif message_type == 18:
             # Desired program update
             num_sensors = self._parse_update(message, data_size=2)
             for i in range(0, num_sensors):
                 index = int(message[6 + i * 2], 16)
-                if index in self.status['gewensteProgrammaStatus'].keys():
-                    self.status['gewensteProgrammaStatus'][index] = int(message[7 + i * 2], 16)
+                if index in self.status['desiredProgramStatus'].keys():
+                    self.status['desiredProgramStatus'][index] = int(message[7 + i * 2], 16)
 
         elif message_type == 19:
             # Actual program status
             num_sensors = self._parse_status(message, data_size=1)
             for i in range(0, num_sensors):
-                self.status['werkelijkeProgrammaStatus'][i] = int(message[8 + i], 16)
+                self.status['actualProgramStatus'][i] = int(message[8 + i], 16)
 
         elif message_type == 20:
             # Actual program update
             num_sensors = self._parse_update(message, data_size=2)
             for i in range(0, num_sensors):
                 index = int(message[6 + i * 2], 16)
-                if index in self.status['werkelijkeProgrammaStatus'].keys():
-                    self.status['werkelijkeProgrammaStatus'][index] = int(message[7 + i * 2], 16)
+                if index in self.status['actualProgramStatus'].keys():
+                    self.status['actualProgramStatus'][index] = int(message[7 + i * 2], 16)
 
         elif message_type == 23:
             # Thermometer status
@@ -282,7 +282,7 @@ class VLogParser(object):
             for i in range(0, num_sensors):
                 index = int(message[6 + i * 4:8 + i * 4], 16)
                 # Always add as no status for instruction variables
-                self.status['instructieVariabelen'][index] = parse_instruction_data(message[8 + i * 4:10 + i * 4])
+                self.status['instructionVariables'][index] = parse_instruction_data(message[8 + i * 4:10 + i * 4])
 
         elif message_type == 34:
             # OV/hulpdienst update
@@ -290,7 +290,7 @@ class VLogParser(object):
             for i in range(0, num_sensors):
                 index = int(message[6 + i * 6:8 + i * 6], 16)
                 # Always add as no status for ov/hulpdienst update
-                self.status['OVHulpdienstInformatie'][index] = parse_ovhd_data(message[8 + i * 6:12 + i * 6])
+                self.status['OVEmergencyServiceInfo'][index] = parse_ovhd_data(message[8 + i * 6:12 + i * 6])
 
     def _update_time(self):
         """

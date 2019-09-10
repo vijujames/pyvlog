@@ -17,9 +17,9 @@ into intersection statuses like this:
 ```
 {'timestamp': 1536670800.6,
  'timeReference': 1536670800.0,
- 'loopDetectors': {0: {'OG-BG-FL': 0, 'storing': 0, 'bezet': 0},
-  1: {'OG-BG-FL': 0, 'storing': 0, 'bezet': 0},
-  2: {'OG-BG-FL': 0, 'storing': 0, 'bezet': 1}},
+ 'loopDetectors': {0: {'OG-BG-FL': 0, 'malfunction': 0, 'busy': 0},
+  1: {'OG-BG-FL': 0, 'malfunction': 0, 'busy': 0},
+  2: {'OG-BG-FL': 0, 'malfunction': 0, 'busy': 1}},
  'extSignalState': {0: 0, 1: 2},
  'deltaTime': 0.6}
 ```
@@ -116,25 +116,25 @@ This package is developed for the processing of realtime v-log messages from a s
 
 #### Message types parsed:
 - _timeReference_ (1)
-- _vlogInformatie_ (4)
+- _vlogInformation_ (4)
 - _loopDetectors_ (5,6)
-- _overigeIngangen_ (7,8)
-- _interneFaseCyclus_ (9,10)
+- _otherInputs_ (7,8)
+- _intPhaseCycle_ (9,10)
 - _overigeUitgangenGUS_ (11,12)
 - _extSignalState_ (13,14)
-- _overigeUitgangenWUS_ (15,16)
-- _gewensteProgrammaStatus_ (17,18)
-- _werkelijkeProgrammaStatus_ (19,20)
+- _otherOutputsWUS_ (15,16)
+- _desiredProgramStatus_ (17,18)
+- _actualProgramStatus_ (19,20)
 - _thermometer_ (23,24)
-- _instructieVariabelen_ (32)
-- _OVHulpdienstInformatie_ (34)
+- _instructionVariables_ (32)
+- _OVEmergencyServiceInfo_ (34)
 
 By default only _loopDetectors_ and _extSignalState_ are parsed (plus _timeReference_, which is always parsed in order to calculate the timestamp). Both the parser classes and converter functions take an argument `logged_types`, which specifies which message types to log.
 
 ```python
 from pyvlog.parsers import VLogParser
 
-vlogger = VLogParser(logged_types=["loopDetectors", "extSignalState", "interneFaseCyclus"])
+vlogger = VLogParser(logged_types=["loopDetectors", "extSignalState", "intPhaseCycle"])
 
 messages = ['012018091115000000', '05000003000', '0D00000200', '090000020070A0', '0E00310102', '0600610201']
 for m in messages:
